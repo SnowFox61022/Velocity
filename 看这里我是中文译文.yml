@@ -1,0 +1,79 @@
+# 配置 Velocity
+
+Velocity 旨在易于配置和设置。所有 Velocity 文件都存储在 `velocity.toml` 中，该文件位于启动代理的目录下。Velocity 使用 TOML 文件格式，因为它易于理解，且避免了社区中常见的 YAML 等配置格式的缺陷。
+
+默认配置的最新版本可在 GitHub 上找到。
+
+
+## 数据类型
+Velocity 配置中有几种“特殊”的数据类型：
+
+- **Chat（聊天信息）**：聊天消息可以使用 MiniMessage 格式提供。Minecraft 1.16 及更高版本支持 RGB 颜色。
+- **Address（地址）**：地址由 IP 地址或主机名与端口组成，两者用冒号（:）分隔。例如，`127.0.0.1:25577` 和 `server01.example.com:25565` 都是有效的地址。
+
+
+## 根目录部分
+这些设置主要涵盖代理的基本、最重要的配置。
+
+| 设置名称 | 类型 | 描述 |
+| --- | --- | --- |
+| config-version | String | Velocity 使用的当前配置版本。不应修改此设置。 |
+| bind | Address | 告知代理在特定 IP 上接受连接。默认情况下，Velocity 会监听计算机上所有 IP 地址的 25565 端口。 |
+| motd | Chat | 允许你修改玩家将服务器添加到服务器列表时看到的消息。可使用 MiniMessage 格式。 |
+| show-max-players | Integer | 允许自定义玩家服务器列表中显示的“最大”玩家数量。注意，Velocity 本身不限制支持的最大玩家数。 |
+| online-mode | Boolean | 是否通过 Mojang 验证玩家？默认开启。 |
+| force-key-authentication | Boolean | 代理是否强制执行新的公钥安全标准？默认开启。 |
+| player-info-forwarding-mode | Enum | 详见“配置玩家信息转发”部分。 |
+| prevent-client-proxy-connections | Boolean | 如果从代理获取的客户端 ISP/AS 与从 Mojang 认证服务器获取的不同，玩家将被踢出。这会阻止部分 VPN 和代理连接，但属于较弱的保护方式。 |
+| forwarding-secret-file | String | 存储转发密钥的文件名。此密钥用于确保 Velocity 转发的玩家信息来自你的代理，而非伪装成运行 Velocity 的第三方。详见“玩家信息转发”部分。 |
+| announce-forge | Boolean | 此设置决定 Velocity 是否将自己标识为兼容 Forge/FML 的服务器。默认禁用。 |
+| kick-existing-players | Boolean | 允许恢复 Vanilla 行为：如果玩家尝试重新连接（例如短暂断开互联网连接），则将代理上的该用户踢出。 |
+| ping-passthrough | String | 允许从尝试的服务器列表（或强制主机服务器连接顺序）中转发无内容（默认）、模组信息（`MODS`，适用于 Forge）、描述信息（`DESCRIPTION`）或所有内容（`ALL`）。 |
+| enable-player-address-logging | Boolean | 如果禁用（默认启用），日志中的玩家 IP 地址将被替换为 `<ip address withheld>`。 |
+
+
+## servers 部分
+
+| 设置名称 | 类型 | 描述 |
+| --- | --- | --- |
+| 服务器名称 | Address | 使代理知晓可连接的服务器。 |
+| try | Array | 指定玩家登录时以及被服务器踢出时，Velocity 应尝试连接的服务器。 |
+
+
+## forced-hosts 部分
+
+| 设置名称 | 类型 | 描述 |
+| --- | --- | --- |
+| 主机名 | 主机名 | 配置代理为指定主机名创建强制主机。值为该主机名对应的尝试连接服务器数组。 |
+
+
+## advanced 部分
+
+| 设置名称 | 类型 | 描述 |
+| --- | --- | --- |
+| compression-threshold | Integer | 数据包必须达到的最小大小（以字节为单位），代理才会对其进行压缩。Minecraft 默认使用 256 字节。 |
+| compression-level | Integer | 指示代理压缩数据包时使用的压缩级别。默认值使用 zlib 的默认级别。 |
+| login-ratelimit | Integer | 决定同一 IP 地址两次连接请求之间必须间隔的最短时间（以毫秒为单位）。值为 0 时禁用速率限制。 |
+| connection-timeout | Integer | 决定代理在连接超时前等待连接服务器的时间。 |
+| read-timeout | Integer | 决定代理在接收服务器数据超时前的等待时间。 |
+| haproxy-protocol | Boolean | 决定 Velocity 是否接收 HAProxy PROXY 消息。如果不使用 HAProxy，保持此设置为关闭。 |
+| tcp-fast-open | Boolean | 允许在 Velocity 中启用 TCP 快速打开支持。代理必须运行在 Linux 内核 >=4.14 上，此设置才生效。 |
+| bungee-plugin-message-channel | Boolean | 允许启用或禁用对 BungeeCord 插件消息通道的支持。 |
+| show-ping-requests | Boolean | 允许记录客户端向代理发送的 ping 请求。 |
+| announce-proxy-commands | Boolean | 允许启用或禁用向客户端显式发送代理命令（用于 Minecraft 1.13+ 的标签补全）。 |
+| failover-on-unexpected-server-disconnect | Boolean | 决定服务器意外断开连接时，代理是进行故障转移还是断开用户连接。 |
+| log-command-executions | Boolean | 决定代理是否记录用户运行的所有命令。 |
+| log-player-connections | Boolean | 启用对玩家连接代理、切换服务器和断开代理连接的日志记录。 |
+| accepts-transfers | Boolean | 决定代理是否接受来自其他服务器的传入转移。如果禁用，代理将断开被转移的客户端连接。 |
+
+
+## query 部分
+
+| 设置名称 | 类型 | 描述 |
+| --- | --- | --- |
+| enabled | Boolean | Velocity 是否应响应 Minecraft 查询协议请求。通常可保持为 false。 |
+| port | Number | 指定 Velocity 监听 GameSpy 4（Minecraft 查询协议）请求的端口。 |
+| map | String | 指定显示给客户端的地图名称。 |
+| show-plugins | Boolean | 查询响应中是否包含 Velocity 插件。 |
+
+内容由 AI 生成
